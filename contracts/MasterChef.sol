@@ -10,8 +10,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./CubiToken.sol";
 
-import "hardhat/console.sol";
-
 // MasterChef is the master of Cubi. He can make Cubi and he is a fair guy.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
@@ -201,12 +199,9 @@ contract MasterChef is OwnableUpgradeable {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
-        console.log("###MasterChef:deposit::amount", _amount);
         if (user.amount > 0) {
             uint256 pending = user.amount.mul(pool.accCubiPerShare).div(1e12).sub(user.rewardDebt);
             if (pending > 0) {
-                console.log("###MasterChef:deposit::pending", pending);
-
                 safeCubiTransfer(msg.sender, pending);
             }
         }
@@ -250,7 +245,6 @@ contract MasterChef is OwnableUpgradeable {
     // Safe cubi transfer function, just in case if rounding error causes pool to not have enough cubis.
     function safeCubiTransfer(address _to, uint256 _amount) internal {
         uint256 cubiBal = cubi.balanceOf(address(this));
-        console.log("###MasterChef:SafeTransfer::bal", cubiBal);
         if (_amount > cubiBal) {
             cubi.transfer(_to, cubiBal);
         } else {

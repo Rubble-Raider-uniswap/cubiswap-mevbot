@@ -88,8 +88,6 @@ contract CubiSwapRouter is ICubiSwapRouter, Ownable {
         address to,
         uint deadline
     ) external virtual override payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
-        console.log("ROUTER:::addLiquidity.sender", msg.sender, block.timestamp);
-        console.log("ROUTER:::addLiquidity.origin", msg.sender, block.timestamp);
 
         (amountToken, amountETH) = _addLiquidity(
             token,
@@ -99,21 +97,15 @@ contract CubiSwapRouter is ICubiSwapRouter, Ownable {
             amountTokenMin,
             amountETHMin
         );
-     
-        console.log("ROUTER:::amountToken", amountToken / 10**18);
         address pair = CubiSwapLibrary.pairFor(factory, token, WETH);
 
-        console.log("ROUTER:::balance.bef", IERC20CubiSwap(token).balanceOf(pair) / 10**18);
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
-        console.log("ROUTER:::balance.aft", IERC20CubiSwap(token).balanceOf(pair) / 10**18);
 
         IWETH(WETH).deposit{value: amountETH}();
         assert(IWETH(WETH).transfer(pair, amountETH));
         liquidity = ICubiSwapPair(pair).mint(to);
         // refund dust eth, if any
         if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
-
-        console.log("ROUTER:::addLiquidity...END");
 
     }
 
